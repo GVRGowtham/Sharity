@@ -15,6 +15,7 @@ from flask import Response, send_from_directory
 import json
 from app.AuthzModule import Authz
 from app.CustomResponseValidator import CustomResponseValidator
+import yaml
 
 class CustomJSONEncoder(FlaskJSONEncoder):
         def default(self, obj):
@@ -79,6 +80,20 @@ def create_app(test_config=None):
         return Response(response= json.dumps({"title" : exeception.title, "status" : exeception.status, "detail" : exeception.detail}), status = exeception.status, mimetype="application/json")
 
     options = {'swagger_path': swagger_ui_3_path}
+    with open('app/openapi/types.yml','r') as types_fp:
+        types = yaml.load(types_fp.read())['schemas']['types']
+        with open('app/openapi/schemas_type.yml','r') as schemas_fp:
+            schemas = yaml.load(schemas_fp.read())
+            for schema_name in schemas['schemas'].keys():
+                if 'properties' in schemas['schemas'][schema_name]:
+                    properties = schemas['schemas'][schema_name]['properties']
+                    for key in properties.keys():
+                        if 'type' in properties[key].keys():
+                            if properties[key]['type'] in types.keys():
+                                for type_name, type_def in types[properties[key]['type']].items():
+                                    properties[key][type_name] = type_def
+            with open('app/openapi/schemas_type_processed.yml','w') as schemas_type_fp:
+                yaml.dump(schemas, schemas_type_fp, default_flow_style=False)
     connexionApp.add_api(get_bundled_specs(Path("app/openapi/sharity-api.yml")),
                 options=options,
                 arguments={'title': 'Sharity Docs'},

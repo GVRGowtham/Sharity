@@ -1,0 +1,393 @@
+schemas:
+  User:
+      type: "object"
+      additionalProperties: false
+      required:
+        - "password"
+        - "email"
+        - "firstName"
+        - "lastName"
+        - "dateOfBirth"
+        - "phone"
+      properties:
+        _id:
+          type: "string"
+          readOnly: true
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        email:
+          type: "email"
+        dateOfBirth:
+          type: "date"
+        lastlogin:
+          type: "date-time"
+          readOnly: true
+        MadeAsAdminBy:
+          type: "object"
+          additionalProperties: false
+          description: "Date when user is converted to admin"
+          readOnly: true
+          properties:
+            firstName:
+              type: "string"
+            lastName:
+              type: "string"
+            email:
+              type: "string"
+        isAdmin:
+          type: "boolean"
+          readOnly: true
+        password:
+          type: "password"
+          writeOnly: true
+        phone:
+          type: "phone"
+        panNumber:
+          type: "string"
+
+  UserEditable:
+    type: "object"
+    additionalProperties: false
+    properties:
+      password:
+        type: "password"
+        writeOnly: true
+      phone:
+        type: "phone"
+      panNumber:
+        type: "string"
+        
+  Location:
+    type: "object"
+    additionalProperties: false
+    properties:
+      city:
+        type: "string"
+        readOnly: true
+      cityId:
+        type: "string"
+        writeOnly: true
+      street:
+        type: "string"
+      address:
+        type: "string"
+      latitude:
+        type: "string"
+      longitute:
+        type: "string"
+        
+        
+  BankDetails:
+    type: "object"
+    additionalProperties: false
+    properties:
+      accountName: 
+        type: "string"
+      accountNumber:
+        type: "string"
+      IFSCcode:
+        type: "string"
+      PanNumber:
+        type: "string"
+    additionalProperties: false
+
+  DocumentEnum:
+    type: string
+    enum: &DOCUMENT
+      - 12Aform
+      - PanCard-Ngo
+      - PanCard-owner
+      - IDproof-owner
+      - 80TaxDecductionCertificate
+      - cancelledCheckLeaf
+
+
+  DocumentFileRequest:
+    type: "object"
+    additionalProperties: false
+    required: 
+      - filename
+      - delete
+    properties:
+      filename:
+        type: "string"
+        enum: *DOCUMENT
+      file:
+        type: "file"
+      delete:
+        type: boolean
+        default: false
+
+  DocumentFileResponse:
+    type: "object"
+    additionalProperties: false
+    properties:
+      12Aform:
+        type: "uri"
+      PanCard-Ngo:
+        type: "uri"
+      PanCard-owner:
+        type: "uri"
+      IDproof-owner:
+        type: "uri"
+      80TaxDecductionCertificate:
+        type: "uri"
+      cancelledCheckLeaf:
+        type: "uri"
+
+  requirementStatus:
+    type: string
+    enum: &REQUIREMENTSTATUS
+      - completed
+      - cancelled
+      - new
+
+  requirement:
+    type: "object"
+    # additionalProperties: false
+    properties:
+      _id:
+        type: "string"
+        readOnly: true
+      name: 
+        type: "string"
+      quantity: 
+        type: "integer"
+        minimum: 1
+      status:
+        type: "string"
+        enum: *REQUIREMENTSTATUS
+        readOnly: true
+      createdDate:
+        type: "date-time"
+        readOnly: true
+      completedDate:
+        type: "date-time"
+        readOnly: true
+      completedBy:
+        type: "email"
+        description: "Email of donated user"
+        readOnly: true
+      lastUpdateBy:
+        type: "date-time"
+        readOnly: true
+            
+  NgoType:
+    type: "object"
+    additionalProperties: false
+    description: "Type of Ngo"
+    properties:
+      _id:
+        type: "string"
+        readOnly: true
+      ngotype:
+        type: "string"
+
+  City:
+    type: "object"
+    additionalProperties: false
+    description: "city name"
+    properties:
+      _id:
+        type: "string"
+        readOnly: true
+      city:
+        type: "string"
+
+  Ngo:
+    type: "object"
+    additionalProperties: false
+    properties:
+      _id:
+        type: "string"
+        readOnly: true
+      active:
+        description: "active only after approval"
+        type: "boolean"
+      name:
+        type: "string"
+      email:
+        type: "email"
+      password:
+        type: "password"
+        writeOnly: true
+      phone:
+        type: "phone"
+      dateJoined:
+        type: "date-time"
+        readOnly: true
+      description:
+        type: "string"
+      ngotype:
+        type: "string"
+        readOnly: true
+      ngotypeId:
+        type: "string"
+        writeOnly: true
+      numberOfPeopleStaying:
+        type: "integer"
+        minimum: 1
+      location:
+        $ref: "#schemas/Location"
+      amountRaised:
+        type: "integer"
+        format: "int64"
+        minimum: 0
+      likes:
+        type: "integer"
+        format: "int64"
+        minimum: 0
+      mainImageUrl:
+        type: "string"
+      imagesUrl:
+        type: "array"
+        items:
+            type: "string"
+      requirements:
+        type: "array"
+        items:
+          $ref: "#schemas/requirement"
+        readOnly: true
+
+  NgoEditable:
+      type: "object"
+      additionalProperties: false
+      properties:
+        email:
+          type: "email"
+        password:
+          type: "password"
+          writeOnly: true
+        phone:
+          type: "phone"
+        description:
+          type: "string"
+        ngotypeId:
+          type: "string"
+        numberOfPeopleStaying:
+          type: "integer"
+          minimum: 1
+        location:
+          $ref: "#schemas/Location"
+    
+  Transaction:
+    type: "object"
+    additionalProperties: false
+    properties:
+      _id:
+        type: string
+        readOnly: true
+      fromId:
+        type: string
+        writeOnly: true
+        description: ID of user
+      toId:
+        type: string
+        writeOnly: true
+        description: ID of ngo
+      from:
+        type: "object"
+        additionalProperties: false
+        readOnly: true
+        properties:
+          name:
+            type: "string"
+          email:
+            type: "string"
+      to:
+        type: "object"
+        additionalProperties: false
+        readOnly: true
+        properties:
+          name:
+            type: "string"
+          email:
+            type: "string"
+      amount:
+        type: "integer"
+      success:
+        type: "boolean"
+        readOnly: true
+      datetime:
+        type: "date-time"
+        readOnly: true
+      details:
+        type: "string"
+
+  Login:
+    type: "object"
+    additionalProperties: false
+    properties:
+      email:
+        type: "email"
+      password:
+        type: "password"
+      confirmpassword:
+        type: "password"
+      isNgo:
+        type: "boolean"
+        default: false
+
+
+  Error:
+    type: "object"
+    additionalProperties: false
+    required:
+      - status
+      - detail
+    properties:
+      status:
+        type: integer
+        format: int32
+      detail:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+
+  Delete:
+    type: "object"
+    additionalProperties: false
+    required:
+      - id
+    properties:
+      id:
+        type: string
+      detail:
+        type: string
+
+  Action:
+    type: "object"
+    additionalProperties: false
+    required:
+      - id
+    properties:
+      id:
+        type: string
+      detail:
+        type: string
+
+  Static: 
+    type: string
+    format: base64
+  
+  StaticDelete:
+    type: "object"
+    additionalProperties: false
+    required:
+      - url
+    properties:
+      url:
+        type: uri
+      detail:
+        type: string
+
+securitySchemes:
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      x-bearerInfoFunc: app.api.AuthView.decode_token

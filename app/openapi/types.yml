@@ -1,0 +1,23 @@
+schemas:
+  types:
+    email:
+      type: "string"
+      format: "email"
+    date:
+      type: "string"
+      format: "date"
+    date-time:
+      type: "string"
+      format: "date-time"
+    password:
+      type: "string"
+      format: "password"
+    phone:
+      type: "string"
+      pattern: '^\d{10}$'
+    uri:
+      type: "string"
+      format: "uri"
+    file:
+      type: "string"
+      format: "binary"
